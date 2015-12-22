@@ -1,4 +1,4 @@
-package dirutils
+package fileutils
 
 import (
 	"crypto/md5"
@@ -30,8 +30,9 @@ func ListFilesIn(path string) ([]string, error) {
 
 const filechunk = 8192
 
-func CalcHashOf(path string) (string, error) {
+func HashOf(path string) (string, error) {
 	var result string
+
 	file, err := os.Open(path)
 	if err == nil {
 		defer file.Close()

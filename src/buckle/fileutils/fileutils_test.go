@@ -1,4 +1,4 @@
-package dirutils
+package fileutils
 
 import (
 	"io/ioutil"
@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestCalcHashOf(t *testing.T) {
+func TestHashOf(t *testing.T) {
 	const expectedHash = "8db963a7cac33aa7505af578d76cf0f5"
 
 	f, err := ioutil.TempFile("", "samplehash")
@@ -16,7 +16,7 @@ func TestCalcHashOf(t *testing.T) {
 	defer syscall.Unlink(f.Name())
 	ioutil.WriteFile(f.Name(), []byte("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sollicitudin hendrerit dolor, at faucibus augue rutrum at.\n"), 0644)
 
-	hash, err := CalcHashOf(f.Name())
+	hash, err := HashOf(f.Name())
 	if err != nil {
 		t.Errorf("Unexpected hash error: %v", err)
 	} else if hash != expectedHash {
