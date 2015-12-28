@@ -11,6 +11,7 @@
 _obj
 _test
 bin
+.project
 
 # Architecture specific extensions/prefixes
 *.[568vq]
