@@ -1,14 +1,12 @@
 package main
 
 import (
+	"buckle/utils"
 	"buckle/fileutils"
+	"buckle/data"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
-	"os/user"
 	"runtime"
-	"strings"
 )
 
 func main() {
@@ -17,69 +15,29 @@ func main() {
 	log.Println("Number of CPUs: ", nCPU)
 
 	log.Println("Loading current list...")
-	buckleDataFilename := buckleDataFilename()
-	buckleData := readBuckleData(buckleDataFilename)
-
+	buckleDataFilename := data.BuckleDataFilename()
+	
+	buckleData, err := data.ReadBuckleData(buckleDataFilename)
+	utils.CheckMsg("Error reading buckle data file: ", err)
+			
 	files, err := fileutils.ListFilesIn("/home/realbot/temp")
-	check(err)
+	utils.CheckMsg("Error reading dir content: ", err)
 
 	fileHashes := calculateHashFor(files)
-
-	buckleWorkingFile, err := ioutil.TempFile("", "buckle")
-	check(err)
-
-	for path, currentHash := range fileHashes {
-		buckleWorkingFile.WriteString(fmt.Sprintf("%s=%s\n", currentHash, path))
-		oldHash, oldHashExists := buckleData[path]
-		if !oldHashExists || (oldHashExists && oldHash != currentHash) {
-			fmt.Println(path)
-		}
+	for _, each := range fileHashes.CalculateChangedFiles(buckleData) {
+		fmt.Println(each)		
 	}
-
-	buckleWorkingFile.Close()
-	//TODO move temp in .buckle...
+	fileHashes.UpdateBuckleData(buckleDataFilename)
 }
 
-func buckleDataFileExists(dataFilename string) bool {
-	_, err := os.Stat(dataFilename)
-	return err == nil
-}
-
-func buckleDataFilename() string {
-	usr, err := user.Current()
-	if err != nil {
-		panic(err)
-	}
-	return usr.HomeDir + "/.buckle"
-}
-
-func readBuckleData(dataFilename string) map[string]string {
-	const hashLen = 32
-	var result = make(map[string]string)
-	if buckleDataFileExists(dataFilename) {
-		content, err := ioutil.ReadFile(dataFilename)
-		if err != nil {
-			panic("Error reading data file " + err.Error())
-		}
-		for _, s := range strings.Split(string(content), "\n") {
-			if len(s) > 0 {
-				hash := s[:hashLen]
-				path := s[hashLen+1:]
-				result[path] = hash
-			}
-		}
-	}
-	return result
-}
-
-func calculateHashFor(paths []string) map[string]string {
+func calculateHashFor(paths []string) data.BuckleData {
 	const maxFileOpened = 50
 	type item struct {
 		path string
 		hash string
 		err  error
 	}
-	var result = make(map[string]string)
+	var result = data.NewBuckleData()
 	var tokens = make(chan struct{}, maxFileOpened)
 
 	ch := make(chan item, len(paths))
@@ -99,14 +57,8 @@ func calculateHashFor(paths []string) map[string]string {
 		if it.err != nil {
 			log.Printf("Error calculating hash for %s: %v\n", it.path, it.err)
 		} else {
-			result[it.path] = it.hash
+			result.Hashes[it.path] = it.hash
 		}
 	}
 	return result
-}
-
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
 }
