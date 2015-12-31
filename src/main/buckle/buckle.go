@@ -4,17 +4,20 @@ import (
 	"buckle/utils"
 	"buckle/fileutils"
 	"buckle/data"
+	"flag"
 	"fmt"
 	"log"
 	"runtime"
 )
 
 func main() {
-	nCPU := runtime.NumCPU()
-	runtime.GOMAXPROCS(nCPU)
-	log.Println("Number of CPUs: ", nCPU)
+	var nCPU = flag.Int("numcpu", runtime.NumCPU(), "Number of CPU used")
+	flag.Parse()
+	
+	runtime.GOMAXPROCS(*nCPU)
+	log.Println("Number of CPUs: ", *nCPU)
 
-	log.Println("Loading current list...")
+	log.Println("Loading current hashes...")
 	buckleDataFilename := data.BuckleDataFilename()
 	
 	buckleData, err := data.ReadBuckleData(buckleDataFilename)

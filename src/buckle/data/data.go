@@ -20,7 +20,7 @@ func NewBuckleData() BuckleData {
 }
 
 func (bd *BuckleData) UpdateBuckleData(buckleDataFilename string) {
-	buckleWorkingFile := CreateTempBuckleData()
+	buckleWorkingFile := createTempBuckleDataFile()
 	for path, currentHash := range bd.Hashes {
 		WriteBuckleData(buckleWorkingFile, path, currentHash)
 	}
@@ -38,7 +38,6 @@ func (bd *BuckleData) CalculateChangedFiles(oldData BuckleData) []string {
 	}
 	return result
 }
-
 
 func BuckleDataFilename() string {
 	usr, err := user.Current()
@@ -67,14 +66,14 @@ func ReadBuckleData(dataFilename string) (BuckleData, error) {
 	return result, err
 }
 
-func CreateTempBuckleData() (f *os.File) {
+func WriteBuckleData(f *os.File, path string, hash string) {
+	f.WriteString(fmt.Sprintf("%s=%s\n", hash, path))
+}
+
+func createTempBuckleDataFile() (f *os.File) {
 	f, err := ioutil.TempFile("", "buckle")
 	utils.Check(err)
 	return
-}
-
-func WriteBuckleData(f *os.File, path string, hash string) {
-	f.WriteString(fmt.Sprintf("%s=%s\n", hash, path))
 }
 
 func buckleDataFileExists(dataFilename string) bool {
