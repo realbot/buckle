@@ -21,10 +21,10 @@ func main() {
 	buckleDataFilename := data.BuckleDataFilename()
 	
 	buckleData, err := data.ReadBuckleData(buckleDataFilename)
-	utils.CheckMsg("Error reading buckle data file: ", err)
+	utils.CheckErrorMsg("Error reading buckle data file: ", err)
 			
 	files, err := fileutils.ListFilesIn("/home/realbot/temp")
-	utils.CheckMsg("Error reading dir content: ", err)
+	utils.CheckErrorMsg("Error reading dir content: ", err)
 
 	fileHashes := calculateHashFor(files)
 	for _, each := range fileHashes.CalculateChangedFiles(buckleData) {

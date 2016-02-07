@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+const hashLen = 32
+	
 type BuckleData struct {
 	Hashes map[string]string 
 }
@@ -48,7 +50,6 @@ func BuckleDataFilename() string {
 }
 
 func ReadBuckleData(dataFilename string) (BuckleData, error) {
-	const hashLen = 32
 	var result = NewBuckleData()
 	var err error
 	if buckleDataFileExists(dataFilename) {
@@ -67,12 +68,15 @@ func ReadBuckleData(dataFilename string) (BuckleData, error) {
 }
 
 func WriteBuckleData(f *os.File, path string, hash string) {
+	if len(hash) != hashLen {
+		panic("hash mismatch " + hash)
+	}
 	f.WriteString(fmt.Sprintf("%s=%s\n", hash, path))
 }
 
 func createTempBuckleDataFile() (f *os.File) {
 	f, err := ioutil.TempFile("", "buckle")
-	utils.Check(err)
+	utils.CheckError(err)
 	return
 }
 
