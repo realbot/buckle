@@ -1,9 +1,9 @@
 package main
 
 import (
-	"buckle/utils"
-	"buckle/fileutils"
 	"buckle/data"
+	"buckle/fileutils"
+	"buckle/utils"
 	"flag"
 	"fmt"
 	"log"
@@ -13,22 +13,22 @@ import (
 func main() {
 	var nCPU = flag.Int("numcpu", runtime.NumCPU(), "Number of CPU used")
 	flag.Parse()
-	
+
 	runtime.GOMAXPROCS(*nCPU)
 	log.Println("Number of CPUs: ", *nCPU)
 
 	log.Println("Loading current hashes...")
 	buckleDataFilename := data.BuckleDataFilename()
-	
+
 	buckleData, err := data.ReadBuckleData(buckleDataFilename)
 	utils.CheckErrorMsg("Error reading buckle data file: ", err)
-			
+
 	files, err := fileutils.ListFilesIn("/home/realbot/temp")
 	utils.CheckErrorMsg("Error reading dir content: ", err)
 
 	fileHashes := calculateHashFor(files)
-	for _, each := range fileHashes.CalculateChangedFiles(buckleData) {
-		fmt.Println(each)		
+	for _, each := range fileHashes.CalculateChangedHashes(buckleData) {
+		fmt.Println(each)
 	}
 	fileHashes.UpdateBuckleData(buckleDataFilename)
 }
