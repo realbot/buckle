@@ -9,7 +9,23 @@ import (
 	"path/filepath"
 )
 
-func ListFilesIn(path string) ([]string, error) {
+type Paths []string
+
+func (i *Paths) String() string {
+	return "N/A"
+}
+
+func (i *Paths) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
+
+func ListFilesIn(path string, exclude *Paths) ([]string, error) {
+    if len(*exclude) == 0 {
+        //TODO
+    }
+    
 	files := make([]string, 0, 100)
 
 	visit := func(path string, f os.FileInfo, err error) error {
