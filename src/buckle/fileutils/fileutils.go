@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+    "github.com/deckarep/golang-set"
 )
 
 type Paths []string
@@ -20,10 +21,10 @@ func (i *Paths) Set(value string) error {
 	return nil
 }
 
-
 func ListFilesIn(path string, exclude *Paths) ([]string, error) {
-    if len(*exclude) == 0 {
-        //TODO
+    excludedPath := mapset.NewSet()
+    for _, each := range *exclude {
+        excludedPath.Add(each)   
     }
     
 	files := make([]string, 0, 100)
@@ -32,7 +33,10 @@ func ListFilesIn(path string, exclude *Paths) ([]string, error) {
 		var result error
 		if err == nil {
 			if !f.IsDir() {
-				files = append(files, path)
+                parent := filepath.Dir(path)
+                if !excludedPath.Contains(parent) {
+                    files = append(files, path)    
+                }
 			}
 		} else {
 			result = err

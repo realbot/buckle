@@ -25,48 +25,47 @@ func TestHashOf(t *testing.T) {
 }
 
 func TestListFilesIn(t *testing.T) {
-	parent, err := ioutil.TempDir("", "buckledir")
+	parentDir, err := ioutil.TempDir("", "buckledir")
 	if err != nil {
 		t.Errorf("Setup Error: %v", err)
 	}
 
-	toexclude, err := ioutil.TempDir(parent, "buckledir")
-	if err != nil {
-		t.Errorf("Setup Error: %v", err)
-	}
-    
-	fpar, err := ioutil.TempFile(parent, "bucklefile")
+	toexcludeDir, err := ioutil.TempDir(parentDir, "buckledir")
 	if err != nil {
 		t.Errorf("Setup Error: %v", err)
 	}
 
-	fchild, err := ioutil.TempFile(toexclude, "bucklefile")
+	parentFile, err := ioutil.TempFile(parentDir, "bucklefile")
 	if err != nil {
 		t.Errorf("Setup Error: %v", err)
 	}
 
-    defer syscall.Unlink(fchild.Name())
-    defer syscall.Unlink(fpar.Name())
-    defer syscall.Rmdir(toexclude)
-	defer syscall.Rmdir(parent)
-    
-    var noexclude Paths
-    paths, err := ListFilesIn(parent, &noexclude)
-    
-    if err != nil {
+	toexcludeFile, err := ioutil.TempFile(toexcludeDir, "bucklefile")
+	if err != nil {
+		t.Errorf("Setup Error: %v", err)
+	}
+
+	defer syscall.Unlink(toexcludeFile.Name())
+	defer syscall.Unlink(parentFile.Name())
+	defer syscall.Rmdir(toexcludeDir)
+	defer syscall.Rmdir(parentDir)
+
+	var noexclude Paths
+	paths, err := ListFilesIn(parentDir, &noexclude)
+
+	if err != nil {
 		t.Errorf("Unexpected ListFilesIn: %v", err)
 	} else if len(paths) != 2 {
-        t.Errorf("Expected two files, got %v", paths)
-    }
-    
-    var withexclude Paths
-    withexclude.Set(toexclude)
-    singlepath, err := ListFilesIn(parent, &withexclude)
-    
-    if err != nil {
+		t.Errorf("Expected two files, got %v", paths)
+	}
+
+	var withexclude Paths
+	withexclude.Set(toexcludeDir)
+	singlepath, err := ListFilesIn(parentDir, &withexclude)
+
+	if err != nil {
 		t.Errorf("Unexpected ListFilesIn: %v", err)
-	} else if len(singlepath) != 1 && singlepath[0] != fpar.Name() {
-        t.Errorf("Expected just one files, got %v", singlepath)
-    }
-    
+	} else if len(singlepath) != 1 && singlepath[0] != parentFile.Name() {
+		t.Errorf("Expected just one files, got %v", singlepath)
+	}
 }
