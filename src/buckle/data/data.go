@@ -5,7 +5,6 @@ import (
     "fmt"
     "io/ioutil"
     "os"
-    "os/user"
     "strings"
 )
 
@@ -42,10 +41,7 @@ func (bd *BuckleData) CalculateChangedHashes(oldData BuckleData) []string {
 }
 
 func BuckleDataFilename() string {
-    usr, err := user.Current()
-    if err != nil {
-        panic(err)
-    }
+    usr := utils.CurrentUser()
     return usr.HomeDir + "/.buckle"
 }
 

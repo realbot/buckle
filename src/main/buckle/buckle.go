@@ -10,14 +10,19 @@ import (
 	"runtime"
 )
 
+const VERSION = "0.1"
+
 func main() {
 	var nCPU = flag.Int("numcpu", runtime.NumCPU(), "Number of CPU used")
+    var from = flag.String("from", utils.CurrentUser().HomeDir, "Starting path to process")
 	var exclude fileutils.Paths
 	flag.Var(&exclude, "exclude", "Directory to exclude")
 	flag.Parse()
 
 	runtime.GOMAXPROCS(*nCPU)
+    log.Printf("Buckle (%v)\n", VERSION)
 	log.Println("Number of CPUs: ", *nCPU)
+    log.Println("Starting path: ", *from)
 	for _, e := range exclude {
 		log.Println("Excluded: ", e)
 	}
@@ -28,7 +33,7 @@ func main() {
 	buckleData, err := data.ReadBuckleData(buckleDataFilename)
 	utils.CheckErrorMsg("Error reading buckle data file: ", err)
 
-	files, err := fileutils.ListFilesIn("/home/realbot/temp", &exclude)
+	files, err := fileutils.ListFilesIn(*from, &exclude)
 	utils.CheckErrorMsg("Error reading dir content: ", err)
 
 	fileHashes := calculateHashFor(files)

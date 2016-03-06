@@ -1,10 +1,10 @@
 TODO
 
-* handle non-readable files
+* ignore directories (many parent... :-)
 * custom data file
 
 
-
 DONE
-* ignore directories
+* start path
 * handle links
+* handle non-readable files
