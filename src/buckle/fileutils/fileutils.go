@@ -32,7 +32,8 @@ func ListFilesIn(path string, exclude *Paths) ([]string, error) {
 	visit := func(path string, f os.FileInfo, err error) error {
 		var result error
 		if err == nil {
-			if !f.IsDir() {
+            isLink := f.Mode()&os.ModeSymlink != 0
+            if !f.IsDir() && !isLink {
                 parent := filepath.Dir(path)
                 if !excludedPath.Contains(parent) {
                     files = append(files, path)    

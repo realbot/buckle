@@ -2,10 +2,12 @@ package data
 
 import (
     "testing"
+    "os"
 )
 
 func TestSaveAndReadBuckleData(t *testing.T) {
     dataf := createTempBuckleDataFile()
+    defer os.Remove(dataf.Name())
     WriteBuckleData(dataf, "foo", "8f24409843c176fa2c0b4690bfc94d15")
     dataf.Close()
 
@@ -21,6 +23,7 @@ func TestSaveAndReadBuckleData(t *testing.T) {
 
 func TestUpdateBuckleData(t *testing.T) {
     dataf := createTempBuckleDataFile()
+    defer os.Remove(dataf.Name())
     WriteBuckleData(dataf, "foo", "8f24409843c176fa2c0b4690bfc94d15")
     dataf.Close()
 
