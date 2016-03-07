@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
     "github.com/deckarep/golang-set"
+    "log"
+    "syscall"
 )
 
 type Paths []string
@@ -36,11 +38,17 @@ func ListFilesIn(path string, exclude *Paths) ([]string, error) {
                 if excludedPath.Contains(path) {
                     result = filepath.SkipDir
                 }
-            } else if isLink := f.Mode()&os.ModeSymlink != 0; !isLink {
-                files = append(files, path)    
+            } else { 
+                if f.Mode().IsRegular() {
+                    files = append(files, path)
+                }    
 			}
 		} else {
-			result = err
+            if e, ok := err.(*os.PathError); ok && e.Err == syscall.EACCES {
+                log.Println("Warning: cannot read file", path)       
+            } else {
+			    result = err
+            }
 		}
 		return result
 	}

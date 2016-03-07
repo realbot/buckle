@@ -31,13 +31,14 @@ func main() {
 
 	log.Println("Loading current hashes...")
 	buckleDataFilename := data.BuckleDataFilename()
-
 	buckleData, err := data.ReadBuckleData(buckleDataFilename, *reset)
 	utils.CheckErrorMsg("Error reading buckle data file: ", err)
 
+    log.Println("Looking for files...")
 	files, err := fileutils.ListFilesIn(*from, &exclude)
 	utils.CheckErrorMsg("Error reading dir content: ", err)
 
+    log.Println("Calculating hashes...")
 	fileHashes := calculateHashFor(files)
 	for _, each := range fileHashes.CalculateChangedHashes(buckleData) {
 		fmt.Println(each)
@@ -46,7 +47,7 @@ func main() {
 }
 
 func calculateHashFor(paths []string) data.BuckleData {
-	const maxFileOpened = 50
+	const maxFileOpened = 256
 	type item struct {
 		path string
 		hash string
@@ -63,6 +64,7 @@ func calculateHashFor(paths []string) data.BuckleData {
 			var it item
 			it.path = p
 			it.hash, it.err = fileutils.HashOf(p)
+            //log.Println("Done ",len(tokens), " - ",p)
 			ch <- it
 		}(each)
 	}
