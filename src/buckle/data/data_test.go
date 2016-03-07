@@ -11,7 +11,7 @@ func TestSaveAndReadBuckleData(t *testing.T) {
     WriteBuckleData(dataf, "foo", "8f24409843c176fa2c0b4690bfc94d15")
     dataf.Close()
 
-    buckleData, err := ReadBuckleData(dataf.Name())
+    buckleData, err := ReadBuckleData(dataf.Name(), false)
 
     if err != nil {
         t.Errorf("Error reading buckle data file: %v", err)
@@ -21,20 +21,36 @@ func TestSaveAndReadBuckleData(t *testing.T) {
     }
 }
 
+func TestResetReadBuckleData(t *testing.T) {
+    dataf := createTempBuckleDataFile()
+    defer os.Remove(dataf.Name())
+    WriteBuckleData(dataf, "foo", "8f24409843c176fa2c0b4690bfc94d15")
+    dataf.Close()
+
+    buckleData, err := ReadBuckleData(dataf.Name(), true)
+
+    if err != nil {
+        t.Errorf("Error reading buckle data file: %v", err)
+    }
+    if len(buckleData.Hashes) != 0  {
+        t.Error("Reset problem, hash not empty")
+    }
+}
+
 func TestUpdateBuckleData(t *testing.T) {
     dataf := createTempBuckleDataFile()
     defer os.Remove(dataf.Name())
     WriteBuckleData(dataf, "foo", "8f24409843c176fa2c0b4690bfc94d15")
     dataf.Close()
 
-    buckleData, err := ReadBuckleData(dataf.Name())
+    buckleData, err := ReadBuckleData(dataf.Name(), false)
     if err != nil {
         t.Errorf("Error reading buckle data file: %v", err)
     }
 
     buckleData.Hashes["foo"] = "12345678901234567890123456789012"
     buckleData.UpdateBuckleData(dataf.Name())
-    reloadedData, err := ReadBuckleData(dataf.Name())
+    reloadedData, err := ReadBuckleData(dataf.Name(), false)
 
     if err != nil {
         t.Errorf("Error updating buckle data file: %v", err)

@@ -24,7 +24,7 @@ func (i *Paths) Set(value string) error {
 func ListFilesIn(path string, exclude *Paths) ([]string, error) {
     excludedPath := mapset.NewSet()
     for _, each := range *exclude {
-        excludedPath.Add(each)   
+        excludedPath.Add(filepath.Clean(each))   
     }
     
 	files := make([]string, 0, 100)

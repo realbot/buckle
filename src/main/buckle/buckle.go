@@ -15,6 +15,7 @@ const VERSION = "0.1"
 func main() {
 	var nCPU = flag.Int("numcpu", runtime.NumCPU(), "Number of CPU used")
     var from = flag.String("from", utils.CurrentUser().HomeDir, "Starting path to process")
+    var reset = flag.Bool("reset", false, "Ignore current buckle data file")
 	var exclude fileutils.Paths
 	flag.Var(&exclude, "exclude", "Directory to exclude")
 	flag.Parse()
@@ -23,6 +24,7 @@ func main() {
     log.Printf("Buckle (%v)\n", VERSION)
 	log.Println("Number of CPUs: ", *nCPU)
     log.Println("Starting path: ", *from)
+    log.Println("Reset: ", *reset)
 	for _, e := range exclude {
 		log.Println("Excluded: ", e)
 	}
@@ -30,7 +32,7 @@ func main() {
 	log.Println("Loading current hashes...")
 	buckleDataFilename := data.BuckleDataFilename()
 
-	buckleData, err := data.ReadBuckleData(buckleDataFilename)
+	buckleData, err := data.ReadBuckleData(buckleDataFilename, *reset)
 	utils.CheckErrorMsg("Error reading buckle data file: ", err)
 
 	files, err := fileutils.ListFilesIn(*from, &exclude)

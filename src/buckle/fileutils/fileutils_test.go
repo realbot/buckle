@@ -5,6 +5,7 @@ import (
 	"testing"
     "os"
     "path/filepath"
+    "fmt"
 )
 
 func TestHashOf(t *testing.T) {
@@ -41,7 +42,7 @@ func TestListFilesIn(t *testing.T) {
 	}
 
 	var withexclude Paths
-	withexclude.Set(toexcludeDir)
+	withexclude.Set(fmt.Sprintf("%s%c", toexcludeDir, filepath.Separator))
 	singlepath, err := ListFilesIn(parentDir, &withexclude)
 
 	if err != nil {

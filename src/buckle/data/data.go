@@ -45,10 +45,10 @@ func BuckleDataFilename() string {
     return usr.HomeDir + "/.buckle"
 }
 
-func ReadBuckleData(dataFilename string) (BuckleData, error) {
+func ReadBuckleData(dataFilename string, reset bool) (BuckleData, error) {
     var result = NewBuckleData()
     var err error
-    if buckleDataFileExists(dataFilename) {
+    if !reset && buckleDataFileExists(dataFilename) {
         content, err := ioutil.ReadFile(dataFilename)
         if err == nil {
             for _, s := range strings.Split(string(content), "\n") {
