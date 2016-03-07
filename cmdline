@@ -1,1 +1,3 @@
 go test buckle/...
+go get main/buckle
+go build main/buckle

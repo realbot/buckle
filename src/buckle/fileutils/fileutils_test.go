@@ -10,10 +10,7 @@ import (
 func TestHashOf(t *testing.T) {
 	const expectedHash = "8db963a7cac33aa7505af578d76cf0f5"
 
-	f, err := ioutil.TempFile("", "bucklehash")
-	if err != nil {
-		t.Errorf("Setup Error: %v", err)
-	}
+	f := createTempFile("", t)
 	defer os.Remove(f.Name())
 	ioutil.WriteFile(f.Name(), []byte("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sollicitudin hendrerit dolor, at faucibus augue rutrum at.\n"), 0644)
 
@@ -26,24 +23,12 @@ func TestHashOf(t *testing.T) {
 }
 
 func TestListFilesIn(t *testing.T) {
-	parentDir, err := ioutil.TempDir("", "buckledir")
-	if err != nil {
-		t.Errorf("Setup Error: %v", err)
-	}
-
-	toexcludeDir, err := ioutil.TempDir(parentDir, "buckledir")
-	if err != nil {
-		t.Errorf("Setup Error: %v", err)
-	}
-
-	parentFile, err := ioutil.TempFile(parentDir, "bucklefile")
-	if err != nil {
-		t.Errorf("Setup Error: %v", err)
-	}
-
-	ioutil.TempFile(toexcludeDir, "bucklefile")
-
-	defer os.RemoveAll(toexcludeDir)
+	parentDir := createTempDir("", t)
+	parentFile := createTempFile(parentDir, t)
+	toexcludeDir := createTempDir(parentDir, t)
+	createTempFile(toexcludeDir, t)
+    toexcludeSubDir := createTempDir(toexcludeDir, t)
+    createTempFile(toexcludeSubDir, t)
 	defer os.RemoveAll(parentDir)
 
 	var noexclude Paths
@@ -51,8 +36,8 @@ func TestListFilesIn(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("Unexpected ListFilesIn: %v", err)
-	} else if len(paths) != 2 {
-		t.Errorf("Expected two files, got %v", paths)
+	} else if len(paths) != 3 {
+		t.Errorf("Expected three files, got %v", paths)
 	}
 
 	var withexclude Paths
@@ -67,14 +52,8 @@ func TestListFilesIn(t *testing.T) {
 }
 
 func TestListFilesInSymLink(t *testing.T) {
-    parentDir, err := ioutil.TempDir("", "buckledir")
-	if err != nil {
-		t.Errorf("Setup Error: %v", err)
-	}
-    parentFile, err := ioutil.TempFile(parentDir, "bucklefile")
-	if err != nil {
-		t.Errorf("Setup Error: %v", err)
-	}
+    parentDir := createTempDir("", t)
+    parentFile := createTempFile(parentDir, t)
     symlink := filepath.Join(parentDir, "symlink")
     os.Symlink(parentFile.Name(), symlink)
 	defer os.RemoveAll(parentDir)
@@ -87,4 +66,21 @@ func TestListFilesInSymLink(t *testing.T) {
     } else if len(paths) != 1 || paths[0] != parentFile.Name() {
 		t.Errorf("Expected just one files, got %v", paths)
 	}
+}
+
+
+func createTempDir(path string, t *testing.T) string {
+ 	someDir, err := ioutil.TempDir(path, "buckledir")
+	if err != nil {
+		t.Errorf("Setup Error: %v", err)
+	}
+    return someDir
+}
+
+func createTempFile(path string, t *testing.T) *os.File {
+   	someFile, err := ioutil.TempFile(path, "bucklefile")
+	if err != nil {
+		t.Errorf("Setup Error: %v", err)
+	}
+    return someFile
 }
